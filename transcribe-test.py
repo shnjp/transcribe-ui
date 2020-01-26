@@ -1,6 +1,6 @@
 import boto3
 
-job_name = 'testjob'
+job_name = 'testjob2'
 
 client = boto3.client('transcribe')
 rv = client.start_transcription_job(
@@ -13,6 +13,8 @@ rv = client.start_transcription_job(
         # 'VocabularyName': 'aws',
         'ShowSpeakerLabels': True,
         'MaxSpeakerLabels': 2,
+        'ShowAlternatives': True,
+        'MaxAlternatives': 5,
     },
 )
 print(rv)

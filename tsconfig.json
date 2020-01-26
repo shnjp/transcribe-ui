@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "baseUrl": "src",
+    "esModuleInterop": true,
+    "experimentalDecorators": true,
+    "isolatedModules": true,
+    "jsx": "react",
+    "lib": ["es5", "es6", "es7", "es2018", "es2019", "dom"],
+    "removeComments": true,
+    "outDir": "dist",
+    "preserveConstEnums": true,
+    "rootDirs": ["src"],
+    "sourceMap": true,
+    "strict": true,
+    "target": "esnext",
+  },
+  "include": ["./src/**/*"],
+  "exclude": [
+    "dist",
+    "node_modules"
+  ]
+}

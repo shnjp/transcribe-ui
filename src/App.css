@@ -1,0 +1,26 @@
+.SiteHeader {
+  position: fixed;
+  height: 60px;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.Talks {
+  padding-top: 64px;
+}
+
+.Talk {
+  display: flex;
+  margin: 8px 16px;
+
+  & .Speaker {
+    flex: 40px 0 0;
+    margin-right: 8px;
+  }
+
+  & .Items {
+    & span {
+      margin: 0 0.5em 0 0;
+    }
+  }
+}
