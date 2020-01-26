@@ -1,4 +1,4 @@
-resource "aws_s3_bucket" "dev" {
+resource "aws_s3_bucket" "voices" {
   bucket = "mojimoji-voices"
   acl    = "private"
   tags   = local.default_tags
@@ -12,3 +12,22 @@ resource "aws_s3_bucket" "dev" {
   # }
 }
 
+resource "aws_s3_bucket_policy" "volices-policy" {
+  bucket = aws_s3_bucket.voices.id
+
+  policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+          "Service": "transcribe.amazonaws.com"
+      },
+      "Action": "s3:GetObject",
+      "Resource": "${aws_s3_bucket.voices.arn}/*"
+    }
+  ]
+}
+POLICY
+}
