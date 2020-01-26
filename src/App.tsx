@@ -1,4 +1,5 @@
-import React, {useEffect, useRef, useState} from 'react'
+import React, {useCallback, useEffect, useRef, useState} from 'react'
+import classNames from 'classnames'
 import {parseTranscribeResult, TrasncriptResult} from './transcript'
 import styles from './App.css'
 
@@ -23,39 +24,74 @@ function useTranscript(url: string): TrasncriptResult | undefined {
 
 const App: React.FunctionComponent<AppProps> = ({voiceFile, transcriptResultFile}) => {
   const transcript = useTranscript(transcriptResultFile)
-  const audioRef = useRef<HTMLAudioElement>(null)
+  const audioRef = useRef(null)
+  const [currentTime, setCurrentTime] = useState(0)
+  const onTimeUpdated = useCallback((e: React.SyntheticEvent<HTMLAudioElement>) => {
+    const audioNode: HTMLAudioElement = e.currentTarget
+    console.assert(e.currentTarget === audioRef.current)
+    setCurrentTime(audioNode.currentTime)
+  }, [])
+
+  const onClickTalkSegment = useCallback((e: React.SyntheticEvent<HTMLElement>) => {
+    if (!audioRef.current || !e.currentTarget.dataset.starttime) {
+      return
+    }
+
+    e.stopPropagation()
+
+    const audioNode: HTMLAudioElement = audioRef.current!
+    const startTime = +e.currentTarget.dataset.starttime
+
+    audioNode.currentTime = startTime
+    audioNode.play()
+  }, [])
 
   if (!transcript) {
     return <div>Loading ...</div>
   }
 
-  console.log(transcript)
   return (
-    <main>
+    <div>
       <header className={styles.SiteHeader}>
         <div className="">
-          <audio ref={audioRef} controls={true} src={voiceFile} />
+          <audio ref={audioRef} controls={true} src={voiceFile} onTimeUpdate={onTimeUpdated} />
         </div>
       </header>
 
       <div className={styles.Talks}>
         {transcript.segments.map(({speaker, startTime, endTime, items}) => {
           const key = `${startTime}:${endTime}`
+          const isActive = currentTime >= startTime && currentTime <= endTime
 
           return (
-            <div key={key} className={styles.Talk}>
+            <div
+              key={key}
+              className={classNames(styles.Talk, isActive && styles.isActive)}
+              onClick={onClickTalkSegment}
+              data-starttime={startTime}
+            >
               <div className={styles.Speaker}>{speaker}</div>
               <div className={styles.Items}>
                 {items.map(({startTime, endTime, content}) => {
                   const key = `${startTime}:${endTime}`
-                  return <span key={key}>{content}</span>
+                  const isActive = currentTime >= startTime && currentTime <= endTime
+                  return (
+                    <span
+                      className={classNames(styles.TalkItem, isActive && styles.isActive)}
+                      key={key}
+                      onClick={onClickTalkSegment}
+                      data-starttime={startTime}
+                    >
+                      {content}
+                    </span>
+                  )
                 })}
               </div>
             </div>
           )
         })}
       </div>
-    </main>
+    </div>
   )
 }
 

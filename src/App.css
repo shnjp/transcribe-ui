@@ -11,7 +11,11 @@
 
 .Talk {
   display: flex;
-  margin: 8px 16px;
+  padding: 8px 16px;
+
+  &.isActive {
+    background: #dff1ff;
+  }
 
   & .Speaker {
     flex: 40px 0 0;
@@ -19,8 +23,13 @@
   }
 
   & .Items {
-    & span {
+    & .TalkItem {
       margin: 0 0.5em 0 0;
+      cursor: pointer;
+
+      &.isActive {
+        background: #f3d9d7;
+      }
     }
   }
 }
