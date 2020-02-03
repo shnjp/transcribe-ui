@@ -52,8 +52,8 @@ module.exports = (env, {mode}) => {
                   options: {
                     importLoaders: 1,
                     modules: {
-                      mode: 'global'
-                    }
+                      mode: 'global',
+                    },
                   },
                 },
                 'postcss-loader',
@@ -101,11 +101,10 @@ module.exports = (env, {mode}) => {
 
   if (mode === 'production') {
     // in production
-    config.output.publicPath = 'https://fsc-images.s3-ap-northeast-1.amazonaws.com/app/'
   } else {
-    const cssRules = config.module.rules.find((rule) => 'zyx.css'.match(rule.test))
-    cssRules.oneOf.forEach((config) => {
-      const cssLoaderConfig = config.use.find((x) => x.loader === 'css-loader')
+    const cssRules = config.module.rules.find(rule => 'zyx.css'.match(rule.test))
+    cssRules.oneOf.forEach(config => {
+      const cssLoaderConfig = config.use.find(x => x.loader === 'css-loader')
       cssLoaderConfig.options.modules.localIdentName = '[path][name]__[local]'
     })
   }
