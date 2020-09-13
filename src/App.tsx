@@ -4,8 +4,7 @@ import {parseTranscribeResult, TrasncriptResult} from './transcript'
 import styles from './App.css'
 
 interface AppProps {
-  voiceFile: string
-  transcriptResultFile: string
+  jobName: string
 }
 
 function useTranscript(url: string): TrasncriptResult | undefined {
@@ -22,7 +21,10 @@ function useTranscript(url: string): TrasncriptResult | undefined {
   return transcript
 }
 
-const App: React.FunctionComponent<AppProps> = ({voiceFile, transcriptResultFile}) => {
+const App: React.FunctionComponent<AppProps> = ({jobName}) => {
+  const voiceFile = `./${jobName}.m4a`
+  const transcriptResultFile = `./${jobName}.json`
+
   const transcript = useTranscript(transcriptResultFile)
   const audioRef = useRef(null)
   const [currentTime, setCurrentTime] = useState(0)
