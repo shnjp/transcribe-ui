@@ -1,0 +1,28 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  pre-signed-url
+
+  Sample SAM Template for pre-signed-url
+
+Globals:
+  Function:
+    Timeout: 3
+
+Resources:
+  PreSignedFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: pre-signed/
+      Handler: app.lambda_handler
+      Runtime: python3.7
+      Events:
+        PreSigned:
+          Type: Api
+          Properties:
+            Path: /pre-signed
+            Method: get
+      Environment:
+        Variables:
+          S3_BUCKET_NAME: S3_BUCKET_NAME
+          IAM_ROLE_ARN: IAM_ROLE_ARN
