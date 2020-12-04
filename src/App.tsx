@@ -3,6 +3,8 @@ import classNames from 'classnames'
 import {parseTranscribeResult, TrasncriptResult} from './transcript'
 import styles from './App.css'
 
+import FileUpLoadForm from './fileUpLoad'
+
 interface AppProps {
   jobName: string
 }
@@ -22,6 +24,9 @@ function useTranscript(url: string): TrasncriptResult | undefined {
 }
 
 const App: React.FunctionComponent<AppProps> = ({jobName}) => {
+  if (jobName == '') {
+    return <FileUpLoadForm />
+  }
   const voiceFile = `./${jobName}.m4a`
   const transcriptResultFile = `./${jobName}.json`
 
@@ -51,7 +56,6 @@ const App: React.FunctionComponent<AppProps> = ({jobName}) => {
   if (!transcript) {
     return <div>Loading ...</div>
   }
-
   return (
     <div>
       <header className={styles.SiteHeader}>
@@ -59,6 +63,15 @@ const App: React.FunctionComponent<AppProps> = ({jobName}) => {
           <audio ref={audioRef} controls={true} src={voiceFile} onTimeUpdate={onTimeUpdated} />
         </div>
       </header>
+      <div>
+        <form>
+          <label>
+            Name:
+            <input type="text" name="name" />
+          </label>
+          <input type="submit" value="Submit" />
+        </form>
+      </div>
 
       <div className={styles.Talks}>
         {transcript.segments.map(({speaker, startTime, endTime, items}) => {

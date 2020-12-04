@@ -3,3 +3,7 @@
 *.tfstate.backup
 node_modules/
 dist/
+.DS_Store
+vars.json
+test.txt
+*.log
