@@ -25,4 +25,3 @@ Resources:
       Environment:
         Variables:
           S3_BUCKET_NAME: S3_BUCKET_NAME
-          IAM_ROLE_ARN: IAM_ROLE_ARN
