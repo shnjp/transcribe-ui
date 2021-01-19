@@ -7,3 +7,4 @@ dist/
 vars.json
 test.txt
 *.log
+.aws-sam
