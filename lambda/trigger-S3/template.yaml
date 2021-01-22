@@ -20,23 +20,24 @@ Parameters:
 #   ShouldNotCreateEnvResources: !Equals [!Ref env, NONE ]
 
 Resources:
-  # S3NotificationLambdaFunction:
-  #   Type: 'AWS::Serverless::Function'
-  #   Properties:
-  #     CodeUri: triggerS3/
-  #     Handler: app.lambda_handler
-  #     Role: !GetAtt LambdaIAMRole.Arn
-  #     Runtime: python3.7
-  #     Timeout: 5
+  S3NotificationLambdaFunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: triggerS3/
+      Handler: app.lambda_handler
+      Role: !GetAtt LambdaIAMRole.Arn
+      Runtime: python3.7
+      Timeout: 5
 
-  # LambdaInvokePermission:
-  #   Type: 'AWS::Lambda::Permission'
-  #   Properties:
-  #     FunctionName: !GetAtt S3NotificationLambdaFunction.Arn
-  #     Action: 'lambda:InvokeFunction'
-  #     Principal: s3.amazonaws.com
-  #     SourceAccount: !Ref 'AWS::AccountId'
-  #     SourceArn: !Sub 'arn:aws:s3:::${customstorageBucketName}'
+  LambdaInvokePermission:
+    Type: 'AWS::Lambda::Permission'
+    Properties:
+      FunctionName: !GetAtt S3NotificationLambdaFunction.Arn
+      Action: 'lambda:InvokeFunction'
+      Principal: s3.amazonaws.com
+      SourceAccount: !Ref 'AWS::AccountId'
+      SourceArn: !Sub 'arn:aws:s3:::${customstorageBucketName}'
+
 
   LambdaIAMRole:
     Type: 'AWS::IAM::Role'
@@ -60,6 +61,7 @@ Resources:
                 Action:
                   - 's3:GetBucketNotification'
                   - 's3:PutBucketNotification'
+                  - 's3:GetObject'
                 Resource: !Sub 'arn:aws:s3:::${customstorageBucketName}'
               - Effect: Allow
                 Action:
@@ -67,6 +69,10 @@ Resources:
                   - 'logs:CreateLogStream'
                   - 'logs:PutLogEvents'
                 Resource: 'arn:aws:logs:*:*:*'
+              - Effect: Allow
+                Action:
+                  - 'transcribe:StartTranscriptionJob'
+                Resource: '*'
 
   CustomResourceLambdaFunction:
     Type: 'AWS::Lambda::Function'
@@ -135,11 +141,10 @@ Resources:
                 print("Delete request completed....")
 
 
-  # index.pyが解決するまでコメントアウト
-  # LambdaTrigger:
-  #   Type: 'Custom::LambdaTrigger'
-  #   DependsOn: LambdaInvokePermission
-  #   Properties:
-  #     ServiceToken: !GetAtt CustomResourceLambdaFunction.Arn
-  #     LambdaArn: !GetAtt S3NotificationLambdaFunction.Arn
-  #     Bucket: !Ref customstorageBucketName
+  LambdaTrigger:
+    Type: 'Custom::LambdaTrigger'
+    DependsOn: LambdaInvokePermission
+    Properties:
+      ServiceToken: !GetAtt CustomResourceLambdaFunction.Arn
+      LambdaArn: !GetAtt S3NotificationLambdaFunction.Arn
+      Bucket: !Ref customstorageBucketName
