@@ -59,26 +59,12 @@ Resources:
             Statement:
               - Effect: Allow
                 Action:
-                  - 's3:ListAllMyBuckets'
-                Resource: !Sub 'arn:aws:s3:::${customstorageBucketName}'
-                Condition:
-                  StringEquals:
-                    's3:prefix':
-                      - 'input/*'
-                      - 'output/*'
-              - Effect: Allow
-                Action:
                   - 's3:ListBucket'
+                  - 's3:PutBucketNotification'
+                  - 's3:GetBucketNotification'
                 Resource: !Sub 'arn:aws:s3:::${customstorageBucketName}'
-                Condition:
-                  StringLike:
-                    's3:prefix':
-                      - 'input/*'
-                      - 'output/*'
               - Effect: Allow
                 Action:
-                  - 's3:GetBucketNotification'
-                  - 's3:PutBucketNotification'
                   - 's3:GetObject'
                 Resource: !Sub 'arn:aws:s3:::${customstorageBucketName}/input/*'
               - Effect: Allow
@@ -142,7 +128,9 @@ Resources:
                 cfnresponse.send(event, context, responseStatus, responseData)
 
             def add_notification(LambdaArn, Bucket):
+                print("add_notification")
                 bucket_notification = s3.BucketNotification(Bucket)
+                print("bucket_notification:", bucket_notification)
                 response = bucket_notification.put(
                     NotificationConfiguration={
                         'LambdaFunctionConfigurations': [
@@ -174,7 +162,6 @@ Resources:
                     NotificationConfiguration={}
                 )
                 print("Delete request completed....")
-
 
   LambdaTrigger:
     Type: 'Custom::LambdaTrigger'
