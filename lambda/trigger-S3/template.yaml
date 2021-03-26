@@ -170,3 +170,97 @@ Resources:
       ServiceToken: !GetAtt CustomResourceLambdaFunction.Arn
       LambdaArn: !GetAtt S3NotificationLambdaFunction.Arn
       Bucket: !Ref customstorageBucketName
+
+### transcribeの終了をsalckで通知する部分
+  TranscribeEndNotifycateRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - states.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: /
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'logs:CreateLogGroup'
+                  - 'logs:CreateLogStream'
+                  - 'logs:PutLogEvents'
+                Resource: 'arn:aws:logs:*:*:*'
+
+
+  TranscribeEndNotifycateEvents:
+    Type: AWS::Events::Rule
+    Properties:
+      State: "ENABLED"
+      # RoleArn: !GetAtt TranscribeEndNotifycateRole.Arn
+      EventPattern:
+        source:
+          - 'aws.transcribe'
+        detail-type:
+          - 'Transcribe Job State Change'
+        detail:
+          TranscriptionJobStatus:
+              - 'COMPLETED'
+              - 'FAILED'
+      Targets:
+        - Arn: !GetAtt TranscribeEndNotifycateLambdaFunction.Arn
+          Id: "TranscribeEndNotifycateEventsTarget"
+
+  TranscribeEndNotifycateLambdaFunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: notifycate/
+      Handler: app.lambda_handler
+      Role: !GetAtt TranscribeEndNotifycateLambdaIAMRole.Arn
+      Runtime: python3.7
+      Timeout: 5
+      Environment:
+        Variables:
+          SLACK_APP_MOJIMOJI_TOKEN: SLACK_APP_MOJIMOJI_TOKEN
+
+  TranscribeEndNotifycateLambdaIAMRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'logs:CreateLogGroup'
+                  - 'logs:CreateLogStream'
+                  - 'logs:PutLogEvents'
+                Resource: 'arn:aws:logs:*:*:*'
+              - Effect: Allow
+                Action:
+                  - 'transcribe:GetTranscriptionJob'
+                Resource: '*'
+
+  TranscribeEndNotifycatePermission:
+    Type: 'AWS::Lambda::Permission'
+    Properties:
+      Action: 'lambda:InvokeFunction'
+      FunctionName: !Ref TranscribeEndNotifycateLambdaFunction
+      Principal: 'events.amazonaws.com'
+      SourceArn: !GetAtt TranscribeEndNotifycateEvents.Arn
