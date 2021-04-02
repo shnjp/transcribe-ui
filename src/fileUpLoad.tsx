@@ -1,6 +1,6 @@
 import React from 'react'
 
-const endpoint = 'https://tzh11pi5sf.execute-api.ap-northeast-1.amazonaws.com/Prod/pre-signed'
+const endpoint = 'https://zz2c9x1hp4.execute-api.ap-northeast-1.amazonaws.com/Prod/pre-signed'
 
 interface State {
   uploadFile: null | File
@@ -13,7 +13,20 @@ class FileUpLoadForm extends React.Component<{}, State> {
   }
 
   getPreSignedURL = async () => {
-    const url = await fetch(endpoint, {method: 'GET'})
+    if (this.state.uploadFile == null) {
+      return
+    }
+    const data = {fileName: this.state.uploadFile.name}
+    console.log('data:', data)
+    const param = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8',
+        mode: 'no-cors',
+      },
+      body: JSON.stringify(data),
+    }
+    const url = await fetch(endpoint, param)
       .then((response) => {
         return response.json()
       })
@@ -36,7 +49,7 @@ class FileUpLoadForm extends React.Component<{}, State> {
 
   handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    console.log('event.target: ', event)
+    console.log('event: ', event)
     if (this.state.uploadFile == null) {
       console.log('file is null')
       return
@@ -55,7 +68,7 @@ class FileUpLoadForm extends React.Component<{}, State> {
     return (
       <form onSubmit={this.handleSubmit}>
         <h1>File Upload</h1>
-        <input type="file" accept="video/mp4" onChange={this.handleChange} />
+        <input type="file" accept="video/mp4,audio/*" onChange={this.handleChange} />
         <input type="submit" value="アップロード" />
       </form>
     )
