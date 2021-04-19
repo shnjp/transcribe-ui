@@ -1,0 +1,37 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  pre-signed-url
+
+  Sample SAM Template for pre-signed-url
+
+Globals:
+  Function:
+    Timeout: 3
+
+Resources:
+  ApiGatewayApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      Cors:
+        AllowMethods: "'POST'"
+        AllowHeaders: "'Access-Control-Allow-Headers, Origin, Accept, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers, mode'"
+        AllowOrigin: "'http://localhost:8080'"
+
+  PreSignedFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: pre-signed/
+      Handler: app.lambda_handler
+      Runtime: python3.7
+      Events:
+        PreSigned:
+          Type: Api
+          Properties:
+            Path: /pre-signed
+            Method: post
+            RestApiId: !Ref ApiGatewayApi
+      Environment:
+        Variables:
+          S3_BUCKET_NAME: S3_BUCKET_NAME
